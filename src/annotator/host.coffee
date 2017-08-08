@@ -54,6 +54,19 @@ module.exports = class Host extends Guest
       # Show the UI
       @frame.css('display', '')
 
+      # Work around https://github.com/hypothesis/client/issues/516. Hiding and
+      # showing the frame after short delays triggers Magic™ inside Chrome which
+      # causes the iframe's content to become visible.
+      isChromeExt = new URL(sidebarAppSrc).protocol == 'chrome-extension:'
+      if isChromeExt
+        hideFrame = ->
+          app[0].style.display = 'none'
+        showFrame = ->
+          app[0].style.display = ''
+
+        setTimeout hideFrame, 50
+        setTimeout showFrame, 100
+
     this.on 'beforeAnnotationCreated', (annotation) ->
       # When a new non-highlight annotation is created, focus
       # the sidebar so that the text editor can be focused as
